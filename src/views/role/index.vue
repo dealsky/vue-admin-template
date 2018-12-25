@@ -92,7 +92,9 @@ import Pagination from '@/components/Pagination/index'
 const STATUS_CREATE = 'create'
 
 export default {
-  components: { Pagination },
+  components: {
+    Pagination
+  },
   data() {
     return {
       list: [],
@@ -266,9 +268,6 @@ export default {
       }).catch(() => {
       })
     }
-  },
-  component: {
-    Pagination
   }
 }
 </script>

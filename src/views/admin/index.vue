@@ -222,9 +222,6 @@ export default {
       }).catch(() => {
       })
     }
-  },
-  component: {
-    Pagination
   }
 }
 </script>
