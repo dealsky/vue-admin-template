@@ -46,7 +46,7 @@
       @pagination="pageChange"/>
     <el-dialog :title="dialogTitleMap[dialogStatus]" :visible.sync="dialogFormVisible">
       <el-form
-        ref="adminForm"
+        ref="dialogForm"
         :rules="rules"
         :model="currentRole"
         label-width="120px">
@@ -207,8 +207,8 @@ export default {
     },
     showDialog(status, index) {
       this.$nextTick(() => {
-        if (this.$refs.adminForm) {
-          this.$refs.adminForm.resetFields()
+        if (this.$refs.dialogForm) {
+          this.$refs.dialogForm.resetFields()
         }
         if (status === STATUS_CREATE) {
           this.currentRole.id = ''
@@ -227,7 +227,7 @@ export default {
       })
     },
     dialogConfirm() {
-      this.$refs.adminForm.validate((valid) => {
+      this.$refs.dialogForm.validate((valid) => {
         if (!valid) {
           return false
         }

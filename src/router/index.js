@@ -65,16 +65,16 @@ export const asyncRouterMap = [
   {
     path: '/permission',
     component: Layout,
-    redirect: '/permission/admin',
+    redirect: '/permission/user',
     name: 'Permission',
     meta: { title: '权限管理', icon: 'table' },
     children: [
       {
-        path: 'admin',
-        name: '员工管理',
-        component: () => import('@/views/admin/index'),
-        meta: { title: '员工管理', icon: 'user' },
-        menu: 'admin'
+        path: 'user',
+        name: '用户管理',
+        component: () => import('@/views/user/index'),
+        meta: { title: '用户管理', icon: 'user' },
+        menu: 'user'
       },
       {
         path: 'role',

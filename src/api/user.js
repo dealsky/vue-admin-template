@@ -2,26 +2,26 @@ import request from '@/utils/request'
 
 export function getList(params) {
   return request({
-    url: '/admin/admin/list',
+    url: '/admin/user/list',
     method: 'get',
     params
   })
 }
 
-export function saveAdmin(admin) {
+export function saveUser(user) {
   return request({
-    url: '/admin/admin/save',
+    url: '/admin/user/save',
     method: 'post',
-    data: admin
+    data: user
   })
 }
 
-export function deleteAdmin(adminId) {
+export function deleteUser(userId) {
   return request({
-    url: '/admin/admin/delete',
+    url: '/admin/user/delete',
     method: 'post',
     data: {
-      adminId
+      userId
     }
   })
 }

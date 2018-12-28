@@ -2,7 +2,7 @@
   <div class="app-container">
     <el-form>
       <el-form-item>
-        <el-button v-if="hasPerm('admin:save')" type="primary" icon="el-icon-plus" @click="showDialog('create')">添加
+        <el-button v-if="hasPerm('user:save')" type="primary" icon="el-icon-plus" @click="showDialog('create')">添加
         </el-button>
       </el-form-item>
     </el-form>
@@ -28,14 +28,19 @@
       </el-table-column>
       <el-table-column label="管理" width="200">
         <template slot-scope="scope">
-          <el-button v-if="hasPerm('admin:save')" type="primary" size="small" icon="el-icon-edit" @click="showDialog('update', scope.$index)">修改
+          <el-button
+            v-if="hasPerm('user:save')"
+            type="primary"
+            size="small"
+            icon="el-icon-edit"
+            @click="showDialog('update', scope.$index)">修改
           </el-button>
           <el-button
-            v-if="scope.row.id !== userId && hasPerm('admin:delete')"
+            v-if="scope.row.id !== userId && hasPerm('user:delete')"
             type="danger"
             size="small"
             icon="el-icon-delete"
-            @click="deleteAdmin(scope.$index)">删除
+            @click="deleteUser(scope.$index)">删除
           </el-button>
         </template>
       </el-table-column>
@@ -48,18 +53,18 @@
       @pagination="pageChange"/>
     <el-dialog :title="dialogTitleMap[dialogStatus]" :visible.sync="dialogFormVisible">
       <el-form
-        ref="adminForm"
+        ref="dialogForm"
         :rules="rules"
-        :model="currentAdmin"
+        :model="currentUser"
         label-width="120px">
         <el-form-item label="用户名" prop="username" required>
-          <el-input v-model="currentAdmin.username" class="form-input"/>
+          <el-input v-model="currentUser.username" class="form-input"/>
         </el-form-item>
         <el-form-item label="昵称" prop="nickname" required>
-          <el-input v-model="currentAdmin.nickname" class="form-input"/>
+          <el-input v-model="currentUser.nickname" class="form-input"/>
         </el-form-item>
         <el-form-item label="角色" prop="roleId" required>
-          <el-select v-model="currentAdmin.roleId" class="form-input">
+          <el-select v-model="currentUser.roleId" class="form-input">
             <el-option v-for="role in roles" :key="role.value" :label="role.text" :value="role.value"/>
           </el-select>
         </el-form-item>
@@ -74,7 +79,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { getList, saveAdmin, deleteAdmin } from '@/api/admin'
+import { getList, saveUser, deleteUser } from '@/api/user'
 import { getAll } from '@/api/role'
 import Pagination from '@/components/Pagination/index'
 
@@ -95,10 +100,10 @@ export default {
       dialogStatus: STATUS_CREATE,
       dialogFormVisible: false,
       dialogTitleMap: {
-        create: '添加员工',
+        create: '添加用户',
         update: '编辑'
       },
-      currentAdmin: {
+      currentUser: {
         id: '',
         username: '',
         nickname: '',
@@ -157,27 +162,27 @@ export default {
     },
     showDialog(status, index) {
       this.$nextTick(() => {
-        if (this.$refs.adminForm) {
-          this.$refs.adminForm.resetFields()
+        if (this.$refs.dialogForm) {
+          this.$refs.dialogForm.resetFields()
         }
         if (status === STATUS_CREATE) {
-          this.currentAdmin.id = ''
-          this.currentAdmin.username = ''
-          this.currentAdmin.nickname = ''
-          this.currentAdmin.roleId = ''
+          this.currentUser.id = ''
+          this.currentUser.username = ''
+          this.currentUser.nickname = ''
+          this.currentUser.roleId = ''
         } else {
           const current = this.list[index]
-          this.currentAdmin.id = current.id
-          this.currentAdmin.username = current.username
-          this.currentAdmin.nickname = current.nickname
-          this.currentAdmin.roleId = current.roleId.toString()
+          this.currentUser.id = current.id
+          this.currentUser.username = current.username
+          this.currentUser.nickname = current.nickname
+          this.currentUser.roleId = current.roleId.toString()
         }
         this.dialogStatus = status
         this.dialogFormVisible = true
       })
     },
     dialogConfirm() {
-      this.$refs.adminForm.validate((valid) => {
+      this.$refs.dialogForm.validate((valid) => {
         if (!valid) {
           return false
         }
@@ -186,14 +191,14 @@ export default {
         if (this.dialogStatus === STATUS_CREATE) {
           msg = '添加成功'
         } else {
-          if (this.userId === this.currentAdmin.id) {
+          if (this.userId === this.currentUser.id) {
             msg = '修改成功，部分信息重新登录后生效'
           } else {
             msg = '修改成功'
           }
         }
 
-        saveAdmin(this.currentAdmin).then(() => {
+        saveUser(this.currentUser).then(() => {
           this.fetchData()
           this.dialogFormVisible = false
           this.$message({
@@ -204,14 +209,14 @@ export default {
         })
       })
     },
-    deleteAdmin(index) {
-      this.$confirm('确定删除此员工?', '提示', {
+    deleteUser(index) {
+      this.$confirm('确定删除此用户?', '提示', {
         confirmButtonText: '确定',
         showCancelButton: false,
         type: 'warning'
       }).then(() => {
-        const adminId = this.list[index].id
-        deleteAdmin(adminId).then(() => {
+        const userId = this.list[index].id
+        deleteUser(userId).then(() => {
           this.fetchData()
           this.$message({
             message: '删除成功',
