@@ -9,22 +9,11 @@
           :show-file-list="false"
           :http-request="startUpload"
           :accept="acceptType"
-          :action="uploadAction"
+          action=""
           class="avatar-uploader">
           <img v-if="form.image" :src="form.image" class="avatar" alt="">
           <i v-else class="el-icon-plus avatar-uploader-icon"/>
           <el-progress :percentage="uploadPercent" :text-inside="true" :stroke-width="18"/>
-        </el-upload>
-      </el-form-item>
-      <el-form-item label="图片(回调上传)">
-        <el-upload
-          :show-file-list="false"
-          :http-request="startUploadCallback"
-          :accept="acceptType"
-          :action="uploadAction"
-          class="avatar-uploader">
-          <img v-if="form.imageCallback" :src="form.imageCallback" class="avatar" alt="">
-          <i v-else class="el-icon-plus avatar-uploader-icon"/>
         </el-upload>
       </el-form-item>
     </el-form>
@@ -32,7 +21,7 @@
 </template>
 
 <script>
-import { upload, getUpladToken, getCallbackUploadToken, CDN_DOMAIN, UPLOAD_ACTION } from '@/api/upload'
+import { upload, getUpladToken } from '@/api/upload'
 
 export default {
   data() {
@@ -43,8 +32,7 @@ export default {
         imageCallback: ''
       },
       uploadPercent: 0,
-      uploadAction: UPLOAD_ACTION,
-      acceptType: 'image/png,image/jpeg'
+      acceptType: 'image/png,image/jpeg,image/gif'
     }
   },
   methods: {
@@ -56,58 +44,28 @@ export default {
       })
 
       getUpladToken().then((res) => {
-        upload({
-          token: res.data,
-          request: request,
-          mimeType: ['image/png', 'image/jpeg']
-        }, this.uploadNext, this.uploadError, this.uploadComplete)
-      }).catch(() => {
-      })
-    },
-    startUploadCallback(request) {
-      this.form.imageCallback = ''
-      this.$message({
-        message: '开始上传'
-      })
-
-      const options = {
-        action: '/common/upload/testCallback',
-        extra: {
-          fname: '$(fname)'
+        const data = res.data
+        const params = {
+          'key': data.key,
+          'policy': data.policy,
+          'OSSAccessKeyId': data.OSSAccessKeyId,
+          'success_action_status': '200',
+          'callback': data.callback,
+          'signature': data.signature
         }
-      }
+        upload(data.host, request.file, params).then((res) => {
+          this.form.image = data.host + '/' + res.data.data.filename
 
-      getCallbackUploadToken(options).then((res) => {
-        upload({
-          token: res.data,
-          request: request
-        }, () => {
-        }, this.uploadError, this.uploadCompleteCallback)
+          this.$message({
+            type: 'success',
+            message: '上传成功'
+          })
+        })
       }).catch(() => {
-      })
-    },
-    uploadNext(res) {
-      this.uploadPercent = parseInt(res.total.percent)
-    },
-    uploadError(error) {
-      console.log(error)
-      this.$message({
-        type: 'error',
-        message: '上传失败'
-      })
-    },
-    uploadComplete(res) {
-      this.form.image = CDN_DOMAIN + res.key
-      this.$message({
-        type: 'success',
-        message: '上传成功'
-      })
-    },
-    uploadCompleteCallback(res) {
-      this.form.imageCallback = CDN_DOMAIN + res.key
-      this.$message({
-        type: 'success',
-        message: '上传成功'
+        this.$message({
+          type: 'error',
+          message: '上传成功'
+        })
       })
     }
   }
